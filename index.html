@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Li Wei Photography</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    color: #2d2d2d;
+    background: #fff;
+    line-height: 1.6;
+  }
+
+  /* ===== Nav ===== */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 60px;
+    transition: background 0.3s, box-shadow 0.3s, padding 0.3s;
+  }
+  .nav.scrolled {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 1px 20px rgba(0,0,0,0.06);
+    padding: 12px 60px;
+  }
+  .nav .logo {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #fff;
+    transition: color 0.3s;
+  }
+  .nav.scrolled .logo { color: #2d2d2d; }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    text-decoration: none;
+    color: rgba(255,255,255,0.9);
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+  }
+  .nav.scrolled .nav-links a { color: #555; }
+  .nav-links a:hover, .nav.scrolled .nav-links a:hover { color: #c9a96e; }
+  .nav-links a.active { color: #c9a96e; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: #fff; transition: all 0.3s; }
+  .nav.scrolled .hamburger span { background: #2d2d2d; }
+
+  /* ===== Hero ===== */
+  .hero {
+    height: 100vh;
+    background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('1778679817574.jpg') center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    position: relative;
+  }
+  .hero h1 { font-size: 56px; font-weight: 300; letter-spacing: 6px; margin-bottom: 16px; }
+  .hero p { font-size: 16px; letter-spacing: 4px; opacity: 0.85; font-weight: 300; }
+  .hero .scroll-hint {
+    position: absolute; bottom: 40px;
+    width: 24px; height: 40px;
+    border: 2px solid rgba(255,255,255,0.6);
+    border-radius: 12px;
+  }
+  .hero .scroll-hint::after {
+    content: ''; display: block;
+    width: 4px; height: 8px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 2px;
+    margin: 8px auto 0;
+    animation: scroll 1.6s ease-in-out infinite;
+  }
+  @keyframes scroll { 0%,100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(10px); opacity: 0.3; } }
+
+  /* ===== Sections common ===== */
+  section { padding: 100px 60px; }
+  .section-title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    color: #2d2d2d;
+  }
+  .section-subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #aaa;
+    letter-spacing: 2px;
+    margin-bottom: 60px;
+  }
+  .container { max-width: 1140px; margin: 0 auto; }
+
+  /* ===== Gallery ===== */
+  .gallery-filters {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .gallery-filters button {
+    padding: 8px 24px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    background: #fff;
+    font-size: 13px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #888;
+    transition: all 0.3s;
+  }
+  .gallery-filters button:hover { border-color: #c9a96e; color: #c9a96e; }
+  .gallery-filters button.active { background: #c9a96e; color: #fff; border-color: #c9a96e; }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .gallery .item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    cursor: pointer;
+    aspect-ratio: 3/4;
+  }
+  .gallery .item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+  }
+  .gallery .item:hover img { transform: scale(1.06); }
+  .gallery .item .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .gallery .item:hover .overlay { opacity: 1; }
+  .gallery .item .overlay span {
+    color: #fff;
+    font-size: 13px;
+    letter-spacing: 2px;
+    border: 1px solid rgba(255,255,255,0.6);
+    padding: 8px 20px;
+    border-radius: 30px;
+  }
+
+  /* ===== Lightbox ===== */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .lightbox.open { opacity: 1; pointer-events: auto; }
+  .lightbox img { max-width: 85vw; max-height: 85vh; object-fit: contain; border-radius: 2px; }
+  .lightbox .close {
+    position: absolute; top: 24px; right: 32px;
+    font-size: 32px; color: #fff; cursor: pointer;
+    background: none; border: none; line-height: 1;
+    opacity: 0.7; transition: opacity 0.3s;
+  }
+  .lightbox .close:hover { opacity: 1; }
+  .lightbox .prev, .lightbox .next {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    font-size: 40px; color: #fff; cursor: pointer;
+    background: none; border: none; opacity: 0.6;
+    transition: opacity 0.3s; padding: 16px;
+  }
+  .lightbox .prev { left: 20px; }
+  .lightbox .next { right: 20px; }
+  .lightbox .prev:hover, .lightbox .next:hover { opacity: 1; }
+
+  /* ===== About ===== */
+  .about-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-content .photo img {
+    width: 100%;
+    border-radius: 4px;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+  }
+  .about-content .text h3 { font-size: 24px; font-weight: 300; letter-spacing: 2px; margin-bottom: 24px; }
+  .about-content .text p { color: #666; font-size: 15px; line-height: 1.9; margin-bottom: 16px; }
+  .stats { display: flex; gap: 40px; margin-top: 36px; }
+  .stats div { text-align: center; }
+  .stats div .num { font-size: 36px; font-weight: 300; color: #c9a96e; }
+  .stats div .label { font-size: 12px; color: #aaa; letter-spacing: 1px; margin-top: 4px; }
+
+  /* ===== Services ===== */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .service-card {
+    text-align: center;
+    padding: 48px 28px;
+    background: #fafaf8;
+    border-radius: 4px;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .service-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+  .service-card .icon { font-size: 40px; margin-bottom: 20px; }
+  .service-card h4 { font-size: 18px; font-weight: 500; letter-spacing: 1px; margin-bottom: 12px; }
+  .service-card p { font-size: 14px; color: #999; line-height: 1.8; }
+
+  /* ===== Contact ===== */
+  .contact-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+  }
+  .contact-form { display: flex; flex-direction: column; gap: 16px; }
+  .contact-form input, .contact-form textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .contact-form input:focus, .contact-form textarea:focus { border-color: #c9a96e; }
+  .contact-form textarea { height: 140px; resize: vertical; }
+  .contact-form button {
+    padding: 14px 36px;
+    background: #c9a96e;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: background 0.3s;
+    align-self: flex-start;
+  }
+  .contact-form button:hover { background: #b8934c; }
+  .contact-info { display: flex; flex-direction: column; gap: 24px; justify-content: center; }
+  .contact-info .item { display: flex; align-items: center; gap: 16px; }
+  .contact-info .item .icon { font-size: 22px; }
+  .contact-info .item div .label { font-size: 11px; color: #aaa; letter-spacing: 1px; }
+  .contact-info .item div .val { font-size: 15px; color: #555; }
+
+  /* ===== Footer ===== */
+  footer {
+    text-align: center;
+    padding: 40px 60px;
+    background: #fafaf8;
+    color: #aaa;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  footer .social { display: flex; justify-content: center; gap: 20px; margin-bottom: 16px; }
+  footer .social a { color: #aaa; text-decoration: none; font-size: 18px; transition: color 0.3s; }
+  footer .social a:hover { color: #c9a96e; }
+
+  /* ===== Reveal animation ===== */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    section { padding: 70px 28px; }
+    .nav { padding: 16px 28px; }
+    .nav.scrolled { padding: 10px 28px; }
+    .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; background: #fff; gap: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .nav-links.open { display: flex; }
+    .nav-links a { display: block; padding: 14px 28px; color: #555 !important; border-bottom: 1px solid #f0f0f0; }
+    .hamburger { display: flex; }
+    .hero h1 { font-size: 36px; letter-spacing: 3px; }
+    .gallery { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .about-content { grid-template-columns: 1fr; gap: 40px; }
+    .about-content .photo { max-width: 400px; margin: 0 auto; }
+    .services-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+    .contact-content { grid-template-columns: 1fr; gap: 40px; }
+  }
+  @media (max-width: 480px) {
+    section { padding: 50px 16px; }
+    .nav { padding: 14px 16px; }
+    .gallery { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 28px; }
+    .stats { flex-direction: column; gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Nav ===== -->
+<nav class="nav" id="nav">
+  <div class="logo">LI WEI</div>
+  <button class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home">首页</a></li>
+    <li><a href="#gallery">作品</a></li>
+    <li><a href="#about">关于</a></li>
+    <li><a href="#services">服务</a></li>
+    <li><a href="#contact">联系</a></li>
+  </ul>
+</nav>
+
+<!-- ===== Hero ===== -->
+<section class="hero" id="home">
+  <h1>LI WEI</h1>
+  <p>用镜头记录光影故事</p>
+  <div class="scroll-hint"></div>
+</section>
+
+<!-- ===== Gallery ===== -->
+<section id="gallery">
+  <div class="container">
+    <h2 class="section-title">作品集</h2>
+    <p class="section-subtitle">PORTFOLIO</p>
+    <div class="gallery-filters">
+      <button class="active" data-filter="all">全部</button>
+      <button data-filter="portrait">人像</button>
+      <button data-filter="landscape">风光</button>
+      <button data-filter="documentary">纪实</button>
+    </div>
+    <div class="gallery" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- ===== Lightbox ===== -->
+<div class="lightbox" id="lightbox">
+  <button class="close">&times;</button>
+  <button class="prev">&lsaquo;</button>
+  <button class="next">&rsaquo;</button>
+  <img src="" alt="" id="lightboxImg">
+</div>
+
+<!-- ===== About ===== -->
+<section id="about">
+  <div class="container">
+    <h2 class="section-title">关于我</h2>
+    <p class="section-subtitle">ABOUT</p>
+    <div class="about-content reveal">
+      <div class="photo">
+        <img src="1778679817574.jpg" alt="摄影师">
+      </div>
+      <div class="text">
+        <h3>摄影师 / 李伟</h3>
+        <p>从事摄影工作十余年，擅长人像摄影、婚礼纪实与商业拍摄。曾为超过 200 对新人记录下最珍贵的瞬间，也为众多品牌提供商业视觉解决方案。</p>
+        <p>我相信每一张照片都承载着一段独一无二的故事。摄影于我，不仅是按下快门的瞬间，更是对光影、情感与时间的理解与捕捉。</p>
+        <p>用镜头发现平凡中的不平凡，让每一个瞬间都有温度。</p>
+        <div class="stats">
+          <div><div class="num">10+</div><div class="label">年经验</div></div>
+          <div><div class="num">500+</div><div class="label">拍摄项目</div></div>
+          <div><div class="num">200+</div><div class="label">满意客户</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Services ===== -->
+<section id="services" style="background:#fafaf8;">
+  <div class="container">
+    <h2 class="section-title">服务项目</h2>
+    <p class="section-subtitle">SERVICES</p>
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <div class="icon">💒</div>
+        <h4>婚礼摄影</h4>
+        <p>全程跟拍记录婚礼的每一个动人瞬间，从准备到仪式，真实自然地呈现属于你们的幸福时刻。</p>
+      </div>
+      <div class="service-card">
+        <div class="icon">👤</div>
+        <h4>人像写真</h4>
+        <p>个人写真、情侣照、亲子照、闺蜜照，在自然光影中捕捉你最真实美好的样子。</p>
+      </div>
+      <div class="service-card">
+        <div class="icon">🏢</div>
+        <h4>商业拍摄</h4>
+        <p>产品摄影、企业形象照、活动纪实，为品牌提供专业高品质的视觉内容。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Contact ===== -->
+<section id="contact">
+  <div class="container">
+    <h2 class="section-title">联系我</h2>
+    <p class="section-subtitle">CONTACT</p>
+    <div class="contact-content reveal">
+      <form class="contact-form" id="contactForm">
+        <input type="text" placeholder="您的姓名" required>
+        <input type="email" placeholder="电子邮箱" required>
+        <input type="text" placeholder="主题">
+        <textarea placeholder="留言内容..." required></textarea>
+        <button type="submit">发送消息</button>
+      </form>
+      <div class="contact-info">
+        <div class="item">
+          <div class="icon">📧</div>
+          <div><div class="label">邮箱</div><div class="val">hello@liwei.photo</div></div>
+        </div>
+        <div class="item">
+          <div class="icon">📱</div>
+          <div><div class="label">电话</div><div class="val">+86 138-0000-0000</div></div>
+        </div>
+        <div class="item">
+          <div class="icon">💬</div>
+          <div><div class="label">微信</div><div class="val">liwei_photo</div></div>
+        </div>
+        <div class="item">
+          <div class="icon">📍</div>
+          <div><div class="label">所在地</div><div class="val">上海 / 杭州</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <div class="social">
+    <a href="#" title="微博">📷</a>
+    <a href="#" title="小红书">📕</a>
+    <a href="#" title="Instagram">📸</a>
+  </div>
+  <div>&copy; 2026 Li Wei Photography. All rights reserved.</div>
+</footer>
+
+<script>
+"use strict";
+
+// Photo data — all 28 photos from user's folder
+const basePath = '';
+const photoFiles = [
+  '1778679817574.jpg','1778679817609.jpg','1778679817643.jpg','1778679817677.jpg',
+  '1778679817709.jpg','1778679817744.jpg','1778679817780.jpg','1778679817813.jpg',
+  '1778679817845.jpg','1778679817879.jpg','1778679817913.jpg','1778679817945.jpg',
+  '1778679817976.jpg','1778679818008.jpg','1778679818052.jpg','1778679818089.jpg',
+  '1778679818125.jpg','1778679818163.jpg','1778679818203.jpg','1778679818237.jpg',
+  '1778679818276.jpg','1778679818316.jpg','1778679818356.jpg','1778679818389.jpg',
+  '1778679818423.jpg','1778679818457.jpg','1778679818492.jpg','1778679818525.jpg'
+];
+
+// Assign categories (cycling through)
+const categories = ['portrait','landscape','documentary','portrait','landscape','documentary','portrait'];
+const photos = photoFiles.map((f, i) => ({
+  src: basePath + f,
+  category: categories[i % categories.length]
+}));
+
+// ===== Gallery rendering =====
+const galleryGrid = document.getElementById('galleryGrid');
+const filterBtns = document.querySelectorAll('.gallery-filters button');
+let currentFilter = 'all';
+
+function renderGallery() {
+  const filtered = currentFilter === 'all' ? photos : photos.filter(p => p.category === currentFilter);
+  galleryGrid.innerHTML = filtered.map((p, i) => {
+    const idx = photos.indexOf(p);
+    return `
+      <div class="item" data-index="${idx}">
+        <img src="${p.src}" alt="作品" loading="lazy">
+        <div class="overlay"><span>查看大图</span></div>
+      </div>`;
+  }).join('');
+}
+
+renderGallery();
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderGallery();
+  });
+});
+
+// ===== Lightbox =====
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const closeBtn = lightbox.querySelector('.close');
+const prevBtn = lightbox.querySelector('.prev');
+const nextBtn = lightbox.querySelector('.next');
+let lightboxPhotos = [];
+let lightboxIdx = 0;
+
+function openLightbox(photosArr, idx) {
+  lightboxPhotos = photosArr;
+  lightboxIdx = idx;
+  lightboxImg.src = lightboxPhotos[lightboxIdx].src;
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function lightboxPrev() {
+  lightboxIdx = (lightboxIdx - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+  lightboxImg.src = lightboxPhotos[lightboxIdx].src;
+}
+
+function lightboxNext() {
+  lightboxIdx = (lightboxIdx + 1) % lightboxPhotos.length;
+  lightboxImg.src = lightboxPhotos[lightboxIdx].src;
+}
+
+galleryGrid.addEventListener('click', e => {
+  const item = e.target.closest('.item');
+  if (!item) return;
+  const idx = Number(item.dataset.index);
+  const filtered = currentFilter === 'all' ? photos : photos.filter(p => p.category === currentFilter);
+  const photoIdx = filtered.findIndex(p => p === photos[idx]);
+  openLightbox(filtered, photoIdx);
+});
+
+closeBtn.addEventListener('click', closeLightbox);
+prevBtn.addEventListener('click', lightboxPrev);
+nextBtn.addEventListener('click', lightboxNext);
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') lightboxPrev();
+  if (e.key === 'ArrowRight') lightboxNext();
+});
+
+// ===== Nav scroll effect =====
+const nav = document.getElementById('nav');
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('navLinks');
+
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+hamburger.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+});
+
+navLinks.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => navLinks.classList.remove('open'));
+});
+
+// ===== Nav active highlight =====
+const sections = document.querySelectorAll('section[id]');
+const navAs = document.querySelectorAll('.nav-links a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navAs.forEach(a => a.classList.remove('active'));
+      const match = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+      if (match) match.classList.add('active');
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// ===== Reveal on scroll =====
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ===== Contact form =====
+document.getElementById('contactForm').addEventListener('submit', e => {
+  e.preventDefault();
+  alert('感谢您的留言！我会尽快回复。');
+  e.target.reset();
+});
+</script>
+
+</body>
+</html>
